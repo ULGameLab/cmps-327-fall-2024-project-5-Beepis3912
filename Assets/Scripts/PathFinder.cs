@@ -58,6 +58,17 @@ public class PathFinder
             // You just need to fill code inside this foreach only
             foreach (Tile nextTile in current.tile.Adjacents)
             {
+                if (DoneList.Contains(nextTile))
+                    continue;
+                else if(!TODOList.Contains(nextTile))
+                {
+                    nextTile.cameFrom = current;
+                    //then calculate cost
+                }
+                else
+                {
+                    
+                }
                 
             }
         }
