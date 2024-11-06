@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MapGen;
+using System.Linq;
 
 public class Node
 {
@@ -58,18 +59,38 @@ public class PathFinder
             // You just need to fill code inside this foreach only
             foreach (Tile nextTile in current.tile.Adjacents)
             {
-                if (DoneList.Contains(nextTile))
-                    continue;
-                else if(!TODOList.Contains(nextTile))
+                Debug.Log("First Loop");
+
+                if (nextTile.isPassable & !(DoneList.Exists(a => a.tile == nextTile)))//if tile is passable and not on done list
                 {
-                    nextTile.cameFrom = current;
-                    //then calculate cost
+                    Debug.Log("First if");
+
+                    Node a = TODOList.Find(a => a.tile == nextTile);
+                    if (a == null) //if tile not in Todo list
+                    {
+                        Debug.Log("Second If");
+
+                        TODOList.Add(new Node(nextTile, HeuristicsDistance(nextTile, goalTile) +
+                            HeuristicsDistance(start, nextTile), current, current.costSoFar + HeuristicsDistance(current.tile, nextTile)));
+                        //creates node from nextTile
+                        //calculates F cost (priority), assigns current as parent, calculates G cost (cost to get to nextTile added with cost to get to parent)
+                    }
+                    else
+                    {
+                        if (a.priority > HeuristicsDistance(start, nextTile) + HeuristicsDistance(nextTile, goalTile))
+                        {
+                            Debug.Log("Third If");
+
+                            a.cameFrom = current;
+                            a.priority = HeuristicsDistance(start, nextTile) + HeuristicsDistance(nextTile, goalTile);
+
+                            a.costSoFar = current.costSoFar + HeuristicsDistance(current.tile, goalTile);
+
+                            TODOList.Sort((x, y) => (x.priority.CompareTo(y.priority))); // This will keep the TODO List sorted based on the F cost
+                        }
+                    }
                 }
-                else
-                {
-                    
-                }
-                
+                DoneList.Add(current);
             }
         }
         return new Queue<Tile>(); // Returns an empty Path if no path is found
