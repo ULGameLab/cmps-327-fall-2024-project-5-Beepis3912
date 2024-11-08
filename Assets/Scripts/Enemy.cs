@@ -28,7 +28,12 @@ public class Enemy : MonoBehaviour
     protected EnemyState state = EnemyState.DEFAULT;
     protected Material material;
 
-    public EnemyBehavior behavior = EnemyBehavior.EnemyBehavior1; 
+    public EnemyBehavior behavior = EnemyBehavior.EnemyBehavior1;
+
+
+    //added for assitance in enemy behavior
+    List<Player> playerList;
+    Player closePlayer;
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +43,9 @@ public class Enemy : MonoBehaviour
         playerGameObject = GameObject.FindWithTag("Player");
         playerCloseCounter = maxCounter;
         material = GetComponent<MeshRenderer>().material;
+
+        //added for assitance in enemy behavior
+        playerList = new List<Player>((Player[])GameObject.FindObjectsByType(typeof(Player), FindObjectsSortMode.None));
     }
 
     // Update is called once per frame
@@ -131,12 +139,130 @@ public class Enemy : MonoBehaviour
     // TODO: Enemy chases the player when it is nearby
     private void HandleEnemyBehavior2()
     {
-        
+        //enemy moves randomly when player is not nearby
+        switch (state)
+        {
+            case EnemyState.DEFAULT:
+                //changed color to blue to differintiate
+                material.color = Color.blue;
+
+                if (path.Count <= 0)
+                    path = pathFinder.RandomPath(currentTile, 20);
+                if(path.Count > 0)
+                {
+                    targetTile = path.Dequeue();
+                    state = EnemyState.MOVING;
+                }
+                break;
+
+            case EnemyState.MOVING:
+                //move
+                velocity = targetTile.gameObject.transform.position - transform.position;
+                transform.position = transform.position + (velocity.normalized * speed) * Time.deltaTime;
+
+                //if target reached
+                if(Vector3.Distance(transform.position, targetTile.gameObject.transform.position) <= 0.5f)
+                {
+                    currentTile = targetTile;
+                    state = EnemyState.DEFAULT;
+
+                    //decrease playerCloseCounter
+                    //playerCloseCounter--;
+                }
+                /*
+                //if counter less than zero check for player
+                if(playerCloseCounter <= 0)
+                {
+                    foreach(Player player in playerList)
+                    {
+                        if(Vector3.Distance(player.gameObject.transform.position, transform.position) < visionDistance)
+                        {
+                            closePlayer = player;
+
+                            //if player close reset counter
+                            playerCloseCounter = maxCounter;
+                            break;
+                        }
+                    }
+                }
+                if (playerCloseCounter > 0)
+                    state = EnemyState.CHASE;
+                else
+                    state = EnemyState.DEFAULT;
+                */
+                break;
+              
+            //case EnemyState.CHASE:
+
+            default:
+                state = EnemyState.DEFAULT;
+                break;
+        }   
+                
     }
 
     // TODO: Third behavior (Describe what it does)
     private void HandleEnemyBehavior3()
     {
+        //enemy moves randomly when player is not nearby
+        switch (state)
+        {
+            case EnemyState.DEFAULT:
+                //changed color to black to differintiate
+                material.color = Color.black;
 
+                if (path.Count <= 0)
+                    path = pathFinder.RandomPath(currentTile, 20);
+                if (path.Count > 0)
+                {
+                    targetTile = path.Dequeue();
+                    state = EnemyState.MOVING;
+                }
+                break;
+            case EnemyState.MOVING:
+                //move
+                velocity = targetTile.gameObject.transform.position - transform.position;
+                transform.position = transform.position + (velocity.normalized * speed) * Time.deltaTime;
+
+                //if target reached
+                if (Vector3.Distance(transform.position, targetTile.gameObject.transform.position) <= 0.5f)
+                {
+                    currentTile = targetTile;
+                    state = EnemyState.DEFAULT;
+
+                    //decrease playerCloseCounter
+                    //playerCloseCounter--;
+                }
+                /*
+                //if counter less than zero check for player
+                if (playerCloseCounter <= 0)
+                {
+                    foreach (Player player in playerList)
+                    {
+                        if (Vector3.Distance(player.gameObject.transform.position, transform.position) < visionDistance)
+                        {
+                            closePlayer = player;
+
+                            //if player close reset counter
+                            playerCloseCounter = maxCounter;
+                            break;
+                        }
+                    }
+                }
+                if (playerCloseCounter > 0)
+                    state = EnemyState.CHASE;
+                else
+                    state = EnemyState.DEFAULT;
+
+                */
+                break;
+
+            case EnemyState.CHASE:
+
+
+            default:
+                state = EnemyState.DEFAULT;
+                break;
+        }
     }
 }
