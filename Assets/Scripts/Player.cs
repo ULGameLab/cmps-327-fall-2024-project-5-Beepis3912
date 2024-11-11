@@ -8,7 +8,7 @@ public enum PlayerState {DEFAULT, MOVING, EVADE, GOAL_REACHED, DEAD };
 
 public class Player : MonoBehaviour
 {
-    PathFinder pathFinder;
+    public PathFinder pathFinder;
     public GenerateMap mapGenerator;
     public Queue<Tile> path;
     public Tile currentTile;

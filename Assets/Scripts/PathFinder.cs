@@ -59,16 +59,16 @@ public class PathFinder
             // You just need to fill code inside this foreach only
             foreach (Tile nextTile in current.tile.Adjacents)
             {
-                Debug.Log("First Loop");
+                //Debug.Log("First Loop");
 
                 if (nextTile.isPassable & !(DoneList.Exists(a => a.tile == nextTile)))//if tile is passable and not on done list
                 {
-                    Debug.Log("First if");
+                    //Debug.Log("First if");
 
                     Node a = TODOList.Find(a => a.tile == nextTile);
                     if (a == null) //if tile not in Todo list
                     {
-                        Debug.Log("Second If");
+                        //Debug.Log("Second If");
 
                         TODOList.Add(new Node(nextTile, HeuristicsDistance(nextTile, goalTile) +
                             HeuristicsDistance(start, nextTile), current, current.costSoFar + HeuristicsDistance(current.tile, nextTile)));
@@ -79,7 +79,7 @@ public class PathFinder
                     {
                         if (a.priority > HeuristicsDistance(start, nextTile) + HeuristicsDistance(nextTile, goalTile))
                         {
-                            Debug.Log("Third If");
+                            //Debug.Log("Third If");
 
                             a.cameFrom = current;
                             a.priority = HeuristicsDistance(start, nextTile) + HeuristicsDistance(nextTile, goalTile);

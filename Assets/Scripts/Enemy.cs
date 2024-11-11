@@ -156,44 +156,77 @@ public class Enemy : MonoBehaviour
                 break;
 
             case EnemyState.MOVING:
+                Debug.Log("Moving");
                 //move
                 velocity = targetTile.gameObject.transform.position - transform.position;
                 transform.position = transform.position + (velocity.normalized * speed) * Time.deltaTime;
 
+                //Debug.Log(Vector3.Distance(transform.position, targetTile.transform.position));
+
                 //if target reached
-                if(Vector3.Distance(transform.position, targetTile.gameObject.transform.position) <= 0.5f)
+                if(Vector3.Distance(transform.position, targetTile.transform.position) <= 0.5f)
                 {
                     currentTile = targetTile;
                     state = EnemyState.DEFAULT;
 
                     //decrease playerCloseCounter
-                    //playerCloseCounter--;
-                }
-                /*
-                //if counter less than zero check for player
-                if(playerCloseCounter <= 0)
-                {
-                    foreach(Player player in playerList)
-                    {
-                        if(Vector3.Distance(player.gameObject.transform.position, transform.position) < visionDistance)
-                        {
-                            closePlayer = player;
+                    playerCloseCounter--;
 
-                            //if player close reset counter
-                            playerCloseCounter = maxCounter;
-                            break;
+                    ///*
+                    //if counter less than zero check for player
+                    if (playerCloseCounter <= 0)
+                    {
+                        Debug.Log("First if");
+                        foreach (Player player in playerList)
+                        {
+                            Debug.Log("foreach");
+                            if (Vector3.Distance(player.gameObject.transform.position, transform.position) <= visionDistance)
+                            {
+                                Debug.Log("second if");
+                                closePlayer = player;
+
+                                //if player close reset counter
+                                playerCloseCounter = maxCounter;
+                                Debug.Log("counter max");
+                                break;
+                            }
+                            
                         }
+                        if (playerCloseCounter > 0)
+                        {
+                            Debug.Log("move to chase");
+                            state = EnemyState.CHASE;
+                        }
+
+                        else
+                            state = EnemyState.DEFAULT;
                     }
+                    
+                    //*/
                 }
-                if (playerCloseCounter > 0)
-                    state = EnemyState.CHASE;
-                else
-                    state = EnemyState.DEFAULT;
-                */
+
                 break;
               
-            //case EnemyState.CHASE:
+            case EnemyState.CHASE:
+                Debug.Log("Chase ");
+                if (Vector3.Distance(playerGameObject.transform.position, transform.position) <= visionDistance)
+                {
+                    //Debug.Log("Chase if");
+                    //  targetTile = playerGameObject.transform.
+                    targetTile = playerGameObject.GetComponent<Player>().currentTile;
+                        //Debug.Log("second Chase if");
+                        path = pathFinder.FindPathAStar(currentTile, playerGameObject.GetComponent<Player>().currentTile);
 
+                    //offset by two
+                    //
+                    //if(playerGameObject.GetComponent<Player>().pathFinder.DoneList.Count > 2)
+                    
+
+                        //Debug.Log("third Chase if");
+                        targetTile = path.Dequeue();
+                        state = EnemyState.MOVING;
+                }
+                break;
             default:
                 state = EnemyState.DEFAULT;
                 break;
@@ -219,45 +252,81 @@ public class Enemy : MonoBehaviour
                     state = EnemyState.MOVING;
                 }
                 break;
+
             case EnemyState.MOVING:
+                Debug.Log("Moving");
                 //move
                 velocity = targetTile.gameObject.transform.position - transform.position;
                 transform.position = transform.position + (velocity.normalized * speed) * Time.deltaTime;
 
+                //Debug.Log(Vector3.Distance(transform.position, targetTile.transform.position));
+
                 //if target reached
-                if (Vector3.Distance(transform.position, targetTile.gameObject.transform.position) <= 0.5f)
+                if (Vector3.Distance(transform.position, targetTile.transform.position) <= 0.5f)
                 {
                     currentTile = targetTile;
                     state = EnemyState.DEFAULT;
 
                     //decrease playerCloseCounter
-                    //playerCloseCounter--;
-                }
-                /*
-                //if counter less than zero check for player
-                if (playerCloseCounter <= 0)
-                {
-                    foreach (Player player in playerList)
+                    playerCloseCounter--;
+
+                    ///*
+                    //if counter less than zero check for player
+                    if (playerCloseCounter <= 0)
                     {
-                        if (Vector3.Distance(player.gameObject.transform.position, transform.position) < visionDistance)
+                        Debug.Log("First if");
+                        foreach (Player player in playerList)
                         {
-                            closePlayer = player;
+                            Debug.Log("foreach");
+                            if (Vector3.Distance(player.gameObject.transform.position, transform.position) <= visionDistance)
+                            {
+                                Debug.Log("second if");
+                                closePlayer = player;
 
-                            //if player close reset counter
-                            playerCloseCounter = maxCounter;
-                            break;
+                                //if player close reset counter
+                                playerCloseCounter = maxCounter;
+                                Debug.Log("counter max");
+                                break;
+                            }
+
                         }
-                    }
-                }
-                if (playerCloseCounter > 0)
-                    state = EnemyState.CHASE;
-                else
-                    state = EnemyState.DEFAULT;
+                        if (playerCloseCounter > 0)
+                        {
+                            Debug.Log("move to chase");
+                            state = EnemyState.CHASE;
+                        }
 
-                */
+                        else
+                            state = EnemyState.DEFAULT;
+                    }
+
+                    //*/
+                }
+
                 break;
 
             case EnemyState.CHASE:
+                Debug.Log("Chase ");
+                if (Vector3.Distance(playerGameObject.transform.position, transform.position) <= 2 * visionDistance)
+                {
+                    material.color = Color.cyan;
+                    //Debug.Log("Chase if");
+                    //  targetTile = playerGameObject.transform.
+                    targetTile = playerGameObject.GetComponent<Player>().currentTile;
+                    //Debug.Log("second Chase if");
+                    int adjacentSize = playerGameObject.GetComponent<Player>().currentTile.Adjacents.Count;
+                    path = pathFinder.FindPathAStar(currentTile, playerGameObject.GetComponent<Player>().currentTile.Adjacents[Random.Range(0, adjacentSize - 1)]);
+
+                    //offset by two
+                    //
+                    //if(playerGameObject.GetComponent<Player>().pathFinder.DoneList.Count > 2)
+
+
+                    //Debug.Log("third Chase if");
+                    targetTile = path.Dequeue();
+                    state = EnemyState.MOVING;
+                }
+                break;
 
 
             default:
