@@ -34,6 +34,8 @@ public class Enemy : MonoBehaviour
     //added for assitance in enemy behavior
     List<Player> playerList;
     Player closePlayer;
+    Tile currentStore;
+    Tile randomAdjacent;
 
     // Start is called before the first frame update
     void Start()
@@ -309,28 +311,40 @@ public class Enemy : MonoBehaviour
                 Debug.Log("Chase ");
                 if (Vector3.Distance(playerGameObject.transform.position, transform.position) <= 2 * visionDistance)
                 {
-                    material.color = Color.cyan;
-                    //Debug.Log("Chase if");
-                    //  targetTile = playerGameObject.transform.
-                    targetTile = playerGameObject.GetComponent<Player>().currentTile;
-                    //Debug.Log("second Chase if");
+                    material.color = Color.cyan;                    
+
+                    //randomly selects one of currentTile's adjacents
                     int adjacentSize = playerGameObject.GetComponent<Player>().currentTile.Adjacents.Count;
-                    path = pathFinder.FindPathAStar(currentTile, playerGameObject.GetComponent<Player>().currentTile.Adjacents[Random.Range(0, adjacentSize - 1)]);
+                    randomAdjacent = playerGameObject.GetComponent<Player>().currentTile.Adjacents[Random.Range(0, adjacentSize - 1)];
 
-                    //offset by two
-                    //
-                    //if(playerGameObject.GetComponent<Player>().pathFinder.DoneList.Count > 2)
+                    //store currentTile
+                    currentStore = playerGameObject.GetComponent<Player>().currentTile;
 
+                    //searches randomAdjacents adjacent tiles
+                    foreach (Tile adj in randomAdjacent.Adjacents)
+                    {
+                        if (!currentStore.Adjacents.Contains(adj) && adj.isPassable)
+                            //if randomAdjacent has an adjacent tile that is not the player's current adjacent tile
+                            //selects first found that is passable
+                        {
+                            targetTile = adj;
+                            break;
+                        }
+                    }
 
-                    //Debug.Log("third Chase if");
+                    path = pathFinder.FindPathAStar(currentTile, targetTile);
                     targetTile = path.Dequeue();
                     state = EnemyState.MOVING;
+
+                    //Debug.Log("third Chase if");
+                    //targetTile = path.Dequeue();
+                    //state = EnemyState.MOVING;
                 }
                 break;
 
 
             default:
-                state = EnemyState.DEFAULT;
+                state = EnemyState.MOVING;
                 break;
         }
     }
